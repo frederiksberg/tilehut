@@ -17,8 +17,8 @@ TileService.prototype.getInfo = function(done) {
       if (err) return done(new Error('cannot get metadata'));
       var id = info.id;
       info.scheme = 'xyz';
-      info.tiles = ['https://ts.frb-data.dk/' + id + '/{z}/{x}/{y}.png'];
-      info.grids = ['https://ts.frb-data.dk/' + id + '/{z}/{x}/{y}.grid.json'];
+      info.tiles = ['https://th.frb-data.dk/' + id + '/{z}/{x}/{y}.png'];
+      info.grids = ['https://th.frb-data.dk/' + id + '/{z}/{x}/{y}.grid.json'];
       done(null, info);
     });
   });
