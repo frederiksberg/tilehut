@@ -3,6 +3,8 @@
 var express = require('express');
 var app = exports.app = express();
 
+const fs = require('fs');
+
 var config = require('./config');
 var TileService = require('./TileService');
 
@@ -33,6 +35,20 @@ var routeHandlers = {
   },
   ping: function(req, res, next){
     res.send('tilehut says pong!');
+  },
+  ls: function(req, res, next) {
+    fs.readdir(config.TILES_DIR, function (err, files) {
+      if (err) {
+        res.status(404).send(err.message);
+      }
+
+      info = {};
+
+      files.forEach(function (file) {
+        info[file] = "Some URL"
+      });
+      res.json(info);
+    });
   },
   // openshift expects to get a valid response from '/' (health status)
   healthStatus: function(req, res, next){
