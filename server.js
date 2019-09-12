@@ -45,7 +45,10 @@ var routeHandlers = {
       var info = {};
 
       files.forEach(function (file) {
-        info[file] = "Some URL"
+
+        const basename = file.split('.').slice(0, -1).join('.');
+        
+        info[basename] = "https://frb-data.dk/" + basename + "/meta.json";
       });
       res.json(info);
     });
