@@ -48,7 +48,7 @@ var routeHandlers = {
 
         const basename = file.split('.').slice(0, -1).join('.');
         
-        info[basename] = "https://frb-data.dk/" + basename + "/meta.json";
+        info[basename] = "https://th.frb-data.dk/" + basename + "/meta.json";
       });
       res.json(info);
     });
