@@ -42,7 +42,7 @@ var routeHandlers = {
         res.status(404).send(err.message);
       }
 
-      info = {};
+      var info = {};
 
       files.forEach(function (file) {
         info[file] = "Some URL"
