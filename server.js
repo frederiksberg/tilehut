@@ -48,7 +48,7 @@ var routeHandlers = {
 
         const basename = file.split('.').slice(0, -1).join('.');
         
-        info[basename] = "https://th.frb-data.dk/" + basename + "/meta.json";
+        info[basename] = {"meta": "https://th.frb-data.dk/" + basename + "/meta.json", "interactive": "https://th.frb-data.dk/" + basename + "/map"};
       });
       res.json(info);
     });
