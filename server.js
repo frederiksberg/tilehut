@@ -76,7 +76,7 @@ app.route('/:ts/:z/:x/:y.*').get(routeHandlers.getTile);
 app.route('/:ts/meta.json').get(routeHandlers.getInfo);
 app.route('/ping').get(routeHandlers.ping);
 app.route('/ls').get(routeHandlers.ls);
-app.route('/').get(routeHandlers.healthStatus);
+app.route('/').get(routeHandlers.ls);
 
 app.listen(config.PORT, config.IPADDRESS, function() {
   console.info('Tilehut on http://%s:%s', config.IPADDRESS, config.PORT);
