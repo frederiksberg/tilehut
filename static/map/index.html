@@ -90,7 +90,7 @@
     function init(meta){
       var map;
       var mapDiv = 'map';
-      var tilesetUrl = window.location.href.split("map")[0];
+      var tilesetUrl = 'https://{s}.' + window.location.href.split("map")[0].split("://")[1];
       var tilesetCenter = meta.center.slice(0,2).reverse()
       var tilesetMaxZoom = meta.maxzoom;
       var tilesetMinZoom = meta.minzoom;
