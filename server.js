@@ -57,6 +57,9 @@ var routeHandlers = {
   healthStatus: function(req, res, next){
     res.send(':)');
   },
+  root: function(req, res, next) {
+    res.redirect('/landing/');
+  }
 };
 
 // TODO Cache-Control: setting
@@ -76,8 +79,8 @@ app.route('/:ts/:z/:x/:y.*grid.json$').get(routeHandlers.getGrid);
 app.route('/:ts/:z/:x/:y.*').get(routeHandlers.getTile);
 app.route('/:ts/meta.json').get(routeHandlers.getInfo);
 app.route('/ping').get(routeHandlers.ping);
-app.route('/ls').get(routeHandlers.ls);
-app.route('/').get(routeHandlers.ls);
+app.route('/capabilities').get(routeHandlers.ls);
+app.route('/').get(routeHandlers.root);
 
 app.listen(config.PORT, config.IPADDRESS, function() {
   console.info('Tilehut on http://%s:%s', config.IPADDRESS, config.PORT);

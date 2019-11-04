@@ -30,6 +30,7 @@ TileService.prototype.getTile = function(done) {
     if (err) return done(err);
     mbtiles.getTile(that.q.params.z, that.q.params.x, that.q.params.y, function(err, tile, headers) {
       if (err) return done(err);
+      console.log(`Got tile => (${that.q.params.z}, ${that.q.params.x}, ${that.q.params.y})`);
       done(null, tile, headers);
     });
   });

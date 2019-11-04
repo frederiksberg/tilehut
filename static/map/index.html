@@ -82,7 +82,7 @@
   <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
   <script src="https://danzel.github.io/Leaflet.utfgrid/src/leaflet.utfgrid.js"></script>
-  <script src='https://raw.githubusercontent.com/mlevans/leaflet-hash/master/leaflet-hash.js'></script>
+  <script src='https://cdn.jsdelivr.net/npm/leaflet-hash@0.2.1/leaflet-hash.js'></script>
   <script src='https://api.mapbox.com/mapbox-gl-js/v0.32.1/mapbox-gl.js'></script>
   <script src='https://mapbox-gl-inspect.lukasmartinelli.ch/dist/mapbox-gl-inspect.min.js'></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/0.8.1/mustache.js"></script>
@@ -90,13 +90,19 @@
     function init(meta){
       var map;
       var mapDiv = 'map';
-      var tilesetUrl = 'https://{s}.' + window.location.href.split("map")[0].split("://")[1];
+      var bounds = L.latLngBounds(
+        L.latLng(meta.bounds[1], meta.bounds[0]),
+        L.latLng(meta.bounds[3], meta.bounds[2])
+      );
+      var middleurl = window.location.href.split("map")[0].split("://")[1];
+      var tilesetUrl = 'https://' + middleurl;
       var tilesetCenter = meta.center.slice(0,2).reverse()
       var tilesetMaxZoom = meta.maxzoom;
       var tilesetMinZoom = meta.minzoom;
       var tilesLayer = L.tileLayer(tilesetUrl+'{z}/{x}/{y}.png', {
-        minZoom: tilesetMinZoom,
-        maxZoom: tilesetMaxZoom,
+          minZoom: tilesetMinZoom,
+          maxZoom: tilesetMaxZoom,
+          bounds: bounds
       });
       var tilesetType = getTilesetType(meta);
       var tilesetMustacheTemplate = meta.template;
@@ -139,20 +145,20 @@
           }
         }]
       }
-      createMapFromType( tilesetType, mapDiv, tilesetCenter, tilesetUrl, tilesLayer, mapStyle, tilesetMaxZoom, tilesetMustacheTemplate);
+      createMapFromType( tilesetType, mapDiv, tilesetCenter, tilesetUrl, tilesLayer, mapStyle, tilesetMinZoom, tilesetMustacheTemplate);
     }
 
-    function createMapFromType(tilesetType, mapDiv, tilesetCenter, tilesetUrl, tilesLayer, mapStyle, tilesetMaxZoom, tilesetMustacheTemplate){
+    function createMapFromType(tilesetType, mapDiv, tilesetCenter, tilesetUrl, tilesLayer, mapStyle, tilesetMinZoom, tilesetMustacheTemplate){
       switch (tilesetType){
         case 'raster':
-          createRasterMap(mapDiv, tilesetCenter, tilesLayer, tilesetMaxZoom);
+          createRasterMap(mapDiv, tilesetCenter, tilesLayer, tilesetMinZoom);
         break;
         case 'raster-utf8':
-          createRasterMap(mapDiv, tilesetCenter, tilesLayer, tilesetMaxZoom);
+          createRasterMap(mapDiv, tilesetCenter, tilesLayer, tilesetMinZoom);
           addUTF8Grid(tilesetUrl, tilesetMustacheTemplate);
         break;
         case 'vector':
-          createVectorMap( mapDiv, tilesetCenter, mapStyle, tilesetMaxZoom);
+          createVectorMap( mapDiv, tilesetCenter, mapStyle, tilesetMinZoom);
         break;
         default:
           alert('type of map could not be detected – check your meta.json file');
@@ -164,6 +170,49 @@
       map.setView(tilesetCenter, initialZoom);
       map.addLayer(tilesLayer);
       new L.Hash(map);  //adds hash functionality to leaflet
+      map.on("moveend", preLoad);
+      preLoad();
+      
+      function long2tile(lon,zoom) { return (Math.floor((lon+180)/360*Math.pow(2,zoom))); }
+      function lat2tile(lat,zoom)  { return (Math.floor((1-Math.log(Math.tan(lat*Math.PI/180) + 1/Math.cos(lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,zoom))); }
+
+      function preLoad(e) {
+        var zoom = map.getZoom();
+        var bounds = map.getBounds();
+        var west = bounds.getWest();
+        var south = bounds.getSouth();
+        var east = bounds.getEast();
+        var north = bounds.getNorth();
+
+        var preLoadZoom = zoom + 1;
+
+        var dataEast = long2tile(east, preLoadZoom);
+        var dataWest = long2tile(west, preLoadZoom);
+        var dataNorth = lat2tile(north, preLoadZoom);
+        var dataSouth = lat2tile(south, preLoadZoom);
+
+        map.eachLayer(function(layer) {
+          const url_template = layer._url;
+          const minzoom = layer.options.minZoom;
+          const maxzoom = layer.options.maxZoom;
+          const bounds = layer.options.bounds;
+
+          if (preLoadZoom > maxzoom || preLoadZoom < minzoom)
+            return;
+          
+          for (y = dataNorth; y < dataSouth; y++) {
+            if (y > bounds._northEast.lat || y < bounds.southWest.lat)
+              continue;
+            for (x = dataWest; x < dataEast; x++) {
+              if (x > bounds._northEast.lng || x < bounds.southWest.lng)
+                continue;
+              var url = url_template;
+              new Image().src = url.replace("{z}", preLoadZoom).replace("{x}", x).replace("{y}", y);
+            }
+          }
+        })
+
+      }
     }
 
     function addUTF8Grid(tilesetUrl, tilesetMustacheTemplate){
