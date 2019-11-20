@@ -209,7 +209,13 @@
           for (y = dataNorth; y < dataSouth; y++) {
             for (x = dataWest; x < dataEast; x++) {
               var url = url_template;
-              new Image().src = url.replace("{z}", preLoadZoom).replace("{x}", x).replace("{y}", y);
+              // new Image().src = url.replace("{z}", preLoadZoom).replace("{x}", x).replace("{y}", y);
+              fetch(url.replace("{z}", preLoadZoom).replace("{x}", x).replace("{y}", y))
+                .then(response => response.blob())
+                .then(images => {
+                  outside = URL.createObjectURL(images);
+                  console.log(outside);
+                });
             }
           }
         })
