@@ -195,17 +195,19 @@
           const url_template = layer._url;
           const minzoom = layer.options.minZoom;
           const maxzoom = layer.options.maxZoom;
-          const bounds = layer.options.bounds;
+          const bounds2 = layer.options.bounds;
 
           if (preLoadZoom > maxzoom || preLoadZoom < minzoom)
             return;
-          
+
+            dataWest = Math.max(dataWest, long2tile(bounds2.getWest(), preLoadZoom));
+            dataEast = Math.min(dataEast, long2tile(bounds2.getEast(), preLoadZoom));
+
+            dataNorth = Math.max(dataNorth, lat2tile(bounds2.getNorth(), preLoadZoom));
+            dataSouth = Math.min(dataSouth, lat2tile(bounds2.getSouth(), preLoadZoom));
+
           for (y = dataNorth; y < dataSouth; y++) {
-            if (y > bounds._northEast.lat || y < bounds.southWest.lat)
-              continue;
             for (x = dataWest; x < dataEast; x++) {
-              if (x > bounds._northEast.lng || x < bounds.southWest.lng)
-                continue;
               var url = url_template;
               new Image().src = url.replace("{z}", preLoadZoom).replace("{x}", x).replace("{y}", y);
             }
