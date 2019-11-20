@@ -210,7 +210,8 @@
             for (x = dataWest; x < dataEast; x++) {
               var url = url_template;
               // new Image().src = url.replace("{z}", preLoadZoom).replace("{x}", x).replace("{y}", y);
-              fetch(url.replace("{z}", preLoadZoom).replace("{x}", x).replace("{y}", y))
+              fetch(url.replace("{z}", preLoadZoom).replace("{x}", x).replace("{y}", y),
+                    {importance: "low"})
                 .then(response => response.blob())
                 .then(images => {
                   outside = URL.createObjectURL(images);
