@@ -69,7 +69,7 @@ app.use('*', function(req, res, next) {
   // set CORS response header
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'X-Requested-With');
-  res.header('Cache-Control', 'max-age=3600');
+  res.header('Cache-Control', 'max-age=3600, public');
   next();
 });
 
